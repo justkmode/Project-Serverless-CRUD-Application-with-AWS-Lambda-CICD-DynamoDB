@@ -20,7 +20,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-2
+          aws-region: eu-north-1  # Updated to Stockholm region
 
       - name: Validate CloudFormation template
         run: |
@@ -40,5 +40,21 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'CloudFormation test stack deployed. Stack name: pr-test-stack-${{ github.event.pull_request.number }}'
+              body: 'CloudFormation test stack deployed in eu-north-1. Stack name: pr-test-stack-${{ github.event.pull_request.number }}'
             })
+
+  cleanup-on-merge:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1  # Ensure this is the same region where the stack was deployed
+
+      - name: Delete Test Stack
+        run: |
+          stack_name="pr-test-stack-${{ github.event.pull_request.number }}"
+          aws cloudformation delete-stack --stack-name $stack_name
