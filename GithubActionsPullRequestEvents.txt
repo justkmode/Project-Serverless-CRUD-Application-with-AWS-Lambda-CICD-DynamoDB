@@ -1,0 +1,121 @@
+### **Notes on Expanding the CI/CD Pipeline with GitHub Actions and S3 Stack**
+
+#### **Context and Background**
+
+In our previous exercise, we created an end-to-end CI/CD pipeline for an AWS Lambda serverless application using GitHub Actions. The pipeline automatically deployed changes to the Lambda function when updates were pushed to the main branch. Now, we are expanding this setup to include GitHub Actions pull request (PR) events and integrating an S3 bucket for staging and production environments.
+
+#### **Purpose of Expansion**
+
+The goal of this expansion is to introduce a more sophisticated CI/CD workflow that supports pull request events. This will allow us to:
+1. **Validate Changes:** Ensure that any code changes are properly validated before they are merged into the main branch.
+2. **Environment-Specific Deployments:** Use AWS S3 buckets for different environments (test, staging, production) to manage assets and configurations specific to each environment.
+
+### **Part 1: GitHub Actions Pull Request Events**
+
+#### **What Has Been Done:**
+
+1. **Created a CloudFormation Template for S3 Buckets:**
+   - The `AWSTemplateFormatVersion` is set to `2010-09-09`, specifying the version of the AWS CloudFormation template format.
+   - The `Description` provides a brief overview of the template, stating that it creates an S3 bucket for the CI/CD pull request (PR) pipeline.
+   
+2. **Parameters Section:**
+   - Introduced a parameter called `Environment` that defines the environment (test, staging, production) where the S3 bucket will be created.
+   - The `Default` value is set to `test`, with allowed values including `test`, `staging`, and `production`.
+
+3. **Resources Section:**
+   - Defined an `AWS::S3::Bucket` resource named `MyS3Bucket`.
+   - The `BucketName` is dynamically created using the `!Sub` function, which substitutes the stack name and environment to create a unique bucket name.
+   - Tags are applied to the bucket to denote the environment.
+
+4. **Outputs Section:**
+   - Outputs the `BucketName` as a reference, which can be used in other CloudFormation templates or processes.
+
+#### **Why These Steps Were Done:**
+
+- **Environment Flexibility:** By using parameters, the CloudFormation template becomes flexible and can be deployed in multiple environments without modifying the template itself.
+- **Automated Resource Creation:** Automating the creation of S3 buckets ensures consistency across environments and eliminates manual steps in setting up the infrastructure.
+- **Separation of Concerns:** By defining separate environments (test, staging, production), we ensure that changes can be tested thoroughly before being promoted to production.
+
+### **Expanding the Exercise: Adding GitHub Actions for Pull Request Events**
+
+#### **Next Steps:**
+
+1. **Update GitHub Actions Workflow for PR Events:**
+   - Create a new workflow that triggers on pull request events (`pull_request`), separate from the existing `push` event workflow.
+   - Ensure that the workflow validates the code (e.g., linting, unit tests) before the changes are merged.
+
+2. **Integrate S3 Deployment in PR Workflow:**
+   - Modify the workflow to deploy resources to an S3 bucket in a staging environment whenever a pull request is opened or updated.
+   - Use the CloudFormation template to create or update the S3 bucket specific to the staging environment.
+
+3. **Add Conditional Steps for Different Environments:**
+   - Include conditional steps in the workflow to differentiate between deployments to test, staging, or production environments based on the `Environment` parameter.
+
+4. **Security Best Practices:**
+   - Use IAM roles with least privilege to restrict access to the S3 buckets.
+   - Ensure that the S3 buckets have the appropriate policies to prevent unauthorized access.
+
+### **Example GitHub Actions Workflow for Pull Request Events**
+
+```yaml
+name: PR Validation and S3 Deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+      - production
+
+jobs:
+  validate-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r lambda/requirements.txt
+
+      - name: Lint code
+        run: |
+          # Add linting command here
+          echo "Linting code..."
+
+      - name: Run tests
+        run: |
+          # Add test command here
+          echo "Running tests..."
+
+  deploy-to-s3:
+    needs: validate-code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy S3 Bucket
+        run: |
+          aws cloudformation deploy \
+            --template-file s3-stack.yaml \
+            --stack-name my-s3-stack-${{ github.event.pull_request.number }} \
+            --parameter-overrides Environment=staging \
+            --capabilities CAPABILITY_NAMED_IAM
+```
+
+#### **Why These Steps Are Important:**
+
+- **Validation Before Merge:** Ensuring that the code passes all validation checks (linting, testing) before being merged helps maintain code quality.
+- **Staging Environment:** By deploying to a staging environment during the PR process, we can verify that the changes work as expected without affecting production.
+- **Automated and Consistent Deployments:** Using GitHub Actions to manage the entire deployment process reduces the risk of human error and ensures consistency.
+
+### **Conclusion**
+
+This expansion builds upon the initial CI/CD pipeline by introducing pull request validation and staging environment deployments using S3. This setup helps ensure that only thoroughly tested and validated code makes it into the main and production environments. As you continue to expand this setup, consider adding more sophisticated testing, security enhancements, and monitoring for a more robust pipeline.
