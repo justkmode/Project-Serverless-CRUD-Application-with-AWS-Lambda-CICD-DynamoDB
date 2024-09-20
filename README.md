@@ -7,7 +7,7 @@ Set up a CI/CD pipeline for an AWS Lambda serverless application using GitHub Ac
 ## **End-to-End CI/CD Pipeline for AWS Lambda Serverless Application**
 
 ### **Overview**
-In this exercise, we successfully created a Continuous Integration/Continuous Deployment (CI/CD) pipeline for an AWS Lambda serverless application. The process included setting up a local development environment, configuring a GitHub Actions workflow, and securely handling AWS credentials for automated deployment.
+In this exercise, I successfully created a Continuous Integration/Continuous Deployment (CI/CD) pipeline for an AWS Lambda serverless application. The process included setting up a local development environment, configuring a GitHub Actions workflow, and securely handling AWS credentials for automated deployment.
 
 ### **Key Steps**
 1. **Setting Up Local Development Environment:**
