@@ -1,4 +1,4 @@
-## **CI/CD Pipeline for AWS Lambda Serverless Application**
+## **Project: Serverless-CRUD-Application-with-AWS-Lambda-CICD-DynamoDB**
 
 ### **Project Overview**
 
