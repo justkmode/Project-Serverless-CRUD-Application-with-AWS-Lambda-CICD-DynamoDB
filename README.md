@@ -1,6 +1,6 @@
 # lambda-cicd
 
-Set up a CI/CD pipeline for an AWS Lambda serverless application using GitHub Actions, summarized the process, best practices, and potential project extensions. Here's a structured summary based on description:
+Set up a CI/CD pipeline for an AWS Lambda serverless application using GitHub Actions, summarized the process, best practices, and potential project extensions. Here's a structured summary:
 
 ---
 
