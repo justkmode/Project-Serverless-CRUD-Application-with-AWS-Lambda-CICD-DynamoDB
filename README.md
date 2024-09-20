@@ -3,6 +3,7 @@
 Set up a CI/CD pipeline for an AWS Lambda serverless application using GitHub Actions, summarized the process, best practices, and potential project extensions. Here's a structured summary:
 
 ---
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/d3321d89-e35a-4594-a677-588cc7031c0b/f382c4ec-3fb2-42bf-a31b-c199b94a673e/image.png)
 
 ## **End-to-End CI/CD Pipeline for AWS Lambda Serverless Application**
 
